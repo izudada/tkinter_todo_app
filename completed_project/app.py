@@ -27,7 +27,7 @@ logo_widget = tk.Label(menu_frame, image=logo_img, bg=bg)
 logo_widget.image = logo_img
 logo_widget.place(x=int(x/2) - 100, y=5)
 
-
-create_todo_frame(tk, menu_frame, x, y, bg)
+#   load create todo frame
+create_todo_frame(menu_frame, x, y, bg)
 
 root.mainloop()
