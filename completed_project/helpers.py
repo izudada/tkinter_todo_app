@@ -23,7 +23,7 @@ def create_todo_frame(frame, x, y, bg):
     id_entry = tk.Entry(create_todo_frame)
     id_entry.place(x=100, y=50)
 
-    title_entry = tk.Entry(create_todo_frame)
+    title_entry = tk.Entry(create_todo_frame, width=int(x/10)-100)
     title_entry.place(x=100, y=90)
 
     #  warning label
@@ -37,7 +37,7 @@ def create_todo_frame(frame, x, y, bg):
                     - You get a todo with its ID, before edtiting the todo.
             """
     warning= tk.Label(create_todo_frame, text=message, font=('bold', 8), bg='#ffffff', fg=bg)
-    warning.place(x=5, y=110)
+    warning.place(x=5, y=120)
 
     #   create todo button
     tk.Button(
@@ -62,7 +62,7 @@ def create_todo_frame(frame, x, y, bg):
             activebackground=bg,
             activeforeground="white",
             cursor="hand1",
-            command=lambda:get_todo()
+            command=lambda:get_todo(id_entry, title_entry)
         ).place(x=200, y=int(y/3)) 
 
     #   edit todo button
@@ -75,7 +75,7 @@ def create_todo_frame(frame, x, y, bg):
             activebackground=bg,
             activeforeground="white",
             cursor="hand1",
-            command=lambda:update_todo()
+            command=lambda:update_todo(id_entry, title_entry)
         ).place(x=20, y=int(y/3)+100) 
 
     all_todo(frame, x, y, bg)
@@ -113,6 +113,11 @@ def create_todo(id_entry, title_entry):
 
 
 def all_todo( frame, x, y, bg):
+    """
+        A function that gets all the todo
+        record from the database, and 
+        populates a ListBox.
+    """
     all_todo_frame = tk.Frame(frame, width=int(x/2), height=y, bg="#cce6ff")
     all_todo_frame.place(x=int(x/3)+300, y=200)
 
@@ -123,7 +128,6 @@ def all_todo( frame, x, y, bg):
     cursor.execute("select * from todo_info ORDER BY id DESC")
     result = cursor.fetchall()
     con.close()
-    print(result)
  
     list_box= tk.Listbox(all_todo_frame, width=int(x/2), height=30, bg=bg, fg="#ffffff", font=('normal', 10))
     list_box.place(x=2, y=5)
@@ -135,5 +139,34 @@ def all_todo( frame, x, y, bg):
 
         data =  f"{result[item][0]}   |   {result[item][1]}   |   {completed}"
         list_box.insert(list_box.size()+2, data)
+
+
+def get_todo(id_entry, title_entry):
+    """
+        A function that gets a todo item
+    """
+    #   create db connection
+    con = sqlite3.connect('todo.db')
+    cur = con.cursor()
+
+    #   get input value
+    todo_id = id_entry.get();
+
+    #   check if title input is empty
+    if id_entry == "":
+        MessageBox.showinfo("Form Error","ID input box must not be empty")
+    try:
+        #   insert into database
+        cur.execute("SELECT * FROM todo_info WHERE id=?", (todo_id,))
+        result = cur.fetchone()
+        con.close()
+
+        #   clear title input
+        title_entry.delete(0, 'end')
+        #   populate ttile input
+        title_entry.insert(0, result[1])
+    except Exception as e:
+        print(e)
+        MessageBox.showinfo("Invalid ID","Enter a valid ID")
 
 
