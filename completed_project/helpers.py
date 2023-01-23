@@ -1,8 +1,13 @@
-def create_todo_frame(tk, frame, x, y, bg):
+import tkinter as tk
+import sqlite3
+import tkinter.messagebox as MessageBox
+
+
+def create_todo_frame(frame, x, y, bg):
     frame_width = int(x/3)
     # create frame and list frames
     create_todo_frame = tk.Frame(frame, width=frame_width, height=y, bg='#ffffff')
-    create_todo_frame.place(x=5, y=100)
+    create_todo_frame.place(x=5, y=200)
 
     #   labels
     note= tk.Label(create_todo_frame, text="Create Todo", font=('bold', 20), bg='#ffffff', fg=bg)
@@ -23,9 +28,13 @@ def create_todo_frame(tk, frame, x, y, bg):
 
     #  warning label
     message = """
-                Note: Only title input is needed to create todo.
-                    ID input alone is needed to delete and update todo.
-                    Both fields are needed to update a todo.
+                Note: - Only title input is needed to create todo.
+
+                    - ID input alone is needed to delete and update todo.
+
+                    - Both fields are needed to update a todo.
+                    
+                    - You get a todo with its ID, before edtiting the todo.
             """
     warning= tk.Label(create_todo_frame, text=message, font=('bold', 8), bg='#ffffff', fg=bg)
     warning.place(x=5, y=110)
@@ -40,8 +49,8 @@ def create_todo_frame(tk, frame, x, y, bg):
             activebackground="#ffffff",
             activeforeground="#000000",
             cursor="hand1",
-            command=lambda:create_todo()
-        ).place(x=20, y=int(y/3)-50)
+            command=lambda:create_todo(id_entry, title_entry)
+        ).place(x=20, y=int(y/3))
 
     #   get todo button
     tk.Button(
@@ -54,4 +63,52 @@ def create_todo_frame(tk, frame, x, y, bg):
             activeforeground="white",
             cursor="hand1",
             command=lambda:get_todo()
-        ).place(x=200, y=int(y/3)-50) 
+        ).place(x=200, y=int(y/3)) 
+
+    #   edit todo button
+    tk.Button(
+            create_todo_frame,
+            text="Update Todo",
+            font=("TkHeadingFont", 16),
+            bg="#cce6ff",
+            fg="#000000",
+            activebackground=bg,
+            activeforeground="white",
+            cursor="hand1",
+            command=lambda:update_todo()
+        ).place(x=20, y=int(y/3)+100) 
+
+    all_todo(frame, x, y, bg)
+
+
+def create_todo(id_entry, title_entry):
+    """
+        A function that creates
+        a todo entry
+    """
+    #   create db connection
+    con = sqlite3.connect('todo.db')
+    cur = con.cursor()
+
+    #   get input value
+    title = title_entry.get();
+
+    #   check if title input is empty
+    if title == "":
+        MessageBox.showinfo("Form Error","Title input box must not be empty")
+    else:
+        try:
+            #   insert into database
+            cur.execute("INSERT INTO todo_info(title) VALUES(?);", [title])
+            con.commit()
+            con.close()
+
+            #   clear form
+            id_entry.delete(0, 'end')
+            title_entry.delete(0, 'end')
+            MessageBox.showinfo("Success","Todo Created Sucessfully")
+        except Exception as e:
+            print(e)
+            MessageBox.showinfo("Invalid ID","Enter a valid ID")
+
+
