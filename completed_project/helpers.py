@@ -112,3 +112,28 @@ def create_todo(id_entry, title_entry):
             MessageBox.showinfo("Invalid ID","Enter a valid ID")
 
 
+def all_todo( frame, x, y, bg):
+    all_todo_frame = tk.Frame(frame, width=int(x/2), height=y, bg="#cce6ff")
+    all_todo_frame.place(x=int(x/3)+300, y=200)
+
+    #   create db connection
+    con = sqlite3.connect('todo.db')
+    cursor = con.cursor()
+    #   pull data from database
+    cursor.execute("select * from todo_info ORDER BY id DESC")
+    result = cursor.fetchall()
+    con.close()
+    print(result)
+ 
+    list_box= tk.Listbox(all_todo_frame, width=int(x/2), height=30, bg=bg, fg="#ffffff", font=('normal', 10))
+    list_box.place(x=2, y=5)
+    #   fetch each record
+    for item in range(len(result)):
+        completed = "Not Completed"
+        if result[item][2] == 1:
+            completed = "Completed"
+
+        data =  f"{result[item][0]}   |   {result[item][1]}   |   {completed}"
+        list_box.insert(list_box.size()+2, data)
+
+
