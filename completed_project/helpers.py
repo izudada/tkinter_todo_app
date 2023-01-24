@@ -76,7 +76,20 @@ def create_todo_frame(frame, x, y, bg):
             activeforeground="white",
             cursor="hand1",
             command=lambda:update_todo(id_entry, title_entry, frame, x, y, bg)
-        ).place(x=20, y=int(y/3)+100) 
+        ).place(x=20, y=int(y/3)+70) 
+
+    #   delete todo button
+    tk.Button(
+            create_todo_frame,
+            text="Delete Todo",
+            font=("TkHeadingFont", 16),
+            bg="red",
+            fg="#ffffff",
+            activebackground="#ffffff",
+            activeforeground="red",
+            cursor="hand1",
+            command=lambda:delete_todo(id_entry, frame, x, y, bg)
+        ).place(x=200, y=int(y/3)+70) 
 
     all_todo(frame, x, y, bg)
 
@@ -202,3 +215,38 @@ def update_todo(id_entry, title_entry, *todo_params):
         print(e)
         MessageBox.showinfo("Invalid ID","Enter a valid ID")
  
+
+def delete_todo(id_entry, *todo_params):
+    """
+        A function that deletes a todo item
+    """
+    #   create db connection
+    con = sqlite3.connect('todo.db')
+    cur = con.cursor()
+
+    #   get input value
+    id_value = id_entry.get();
+
+    #   check if title input is empty
+    if id_value == "":
+        MessageBox.showinfo("Form Error","ID input box must not be empty")
+    try:
+        #   delete record
+        cur.execute("DELETE FROM todo_info WHERE id = ?", (int(id_value),))
+        result = cur.fetchone()
+        #   check if id exists
+        if result == None:
+            MessageBox.showinfo("Form Error","ID does not exist")
+        else:
+            con.commit()
+            con.close()
+
+            #   refresh the all todo List Box
+            all_todo(*todo_params)
+            MessageBox.showinfo("Success","Todo Deleted Successfully")
+            
+        #   clear inputs
+        id_entry.delete(0, 'end')
+    except Exception as e:
+        print(e)
+        MessageBox.showinfo("Invalid ID","Enter a valid ID")
