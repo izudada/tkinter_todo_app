@@ -247,13 +247,17 @@ def delete_todo(id_entry, *todo_params):
         MessageBox.showinfo("Form Error","ID input box must not be empty")
     else:
         try:
-            #   delete record
-            cur.execute("DELETE FROM todo_info WHERE id = ?", (int(id_value),))
+            #   get todo
+            cur.execute("SELECT * FROM todo_info WHERE id=?", (id_value,))
             result = cur.fetchone()
-            #   check if id exists
+
+            #   conditon if todo exists or not
             if result == None:
-                MessageBox.showinfo("Form Error","ID does not exist")
+                MessageBox.showinfo("Form Error","Invalid ID")
             else:
+
+                #   delete record
+                cur.execute("DELETE FROM todo_info WHERE id = ?", (int(id_value),))
                 con.commit()
                 con.close()
 
@@ -261,8 +265,8 @@ def delete_todo(id_entry, *todo_params):
                 all_todo(*todo_params)
                 MessageBox.showinfo("Success","Todo Deleted Successfully")
 
-            #   clear inputs
-            id_entry.delete(0, 'end')
+                #   clear inputs
+                id_entry.delete(0, 'end')
         except Exception as e:
             print(e)
             MessageBox.showinfo("Invalid ID","Enter a valid ID")
