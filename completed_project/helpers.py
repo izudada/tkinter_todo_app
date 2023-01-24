@@ -49,7 +49,7 @@ def create_todo_frame(frame, x, y, bg):
             activebackground="#ffffff",
             activeforeground="#000000",
             cursor="hand1",
-            command=lambda:create_todo(id_entry, title_entry)
+            command=lambda:create_todo(title_entry,frame, x, y, bg)
         ).place(x=20, y=int(y/3))
 
     #   get todo button
@@ -75,13 +75,13 @@ def create_todo_frame(frame, x, y, bg):
             activebackground=bg,
             activeforeground="white",
             cursor="hand1",
-            command=lambda:update_todo(id_entry, title_entry)
+            command=lambda:update_todo(id_entry, title_entry, frame, x, y, bg)
         ).place(x=20, y=int(y/3)+100) 
 
     all_todo(frame, x, y, bg)
 
 
-def create_todo(id_entry, title_entry):
+def create_todo(title_entry, *todo_params):
     """
         A function that creates
         a todo entry
@@ -104,15 +104,15 @@ def create_todo(id_entry, title_entry):
             con.close()
 
             #   clear form
-            id_entry.delete(0, 'end')
             title_entry.delete(0, 'end')
+            all_todo(*todo_params)
             MessageBox.showinfo("Success","Todo Created Sucessfully")
         except Exception as e:
             print(e)
             MessageBox.showinfo("Invalid ID","Enter a valid ID")
 
 
-def all_todo( frame, x, y, bg):
+def all_todo(frame, x, y, bg):
     """
         A function that gets all the todo
         record from the database, and 
@@ -170,3 +170,35 @@ def get_todo(id_entry, title_entry):
         MessageBox.showinfo("Invalid ID","Enter a valid ID")
 
 
+def update_todo(id_entry, title_entry, *todo_params):
+    """
+        A function that updates a todo item
+    """
+    #   create db connection
+    con = sqlite3.connect('todo.db')
+    cur = con.cursor()
+
+    #   get input value
+    id_value = id_entry.get();
+    title = title_entry.get();
+
+    #   check if title input is empty
+    if id_value == "" or title == "":
+        MessageBox.showinfo("Form Error","ID and title input boxes must not be empty")
+    try:
+        #   update record
+        cur.execute("UPDATE todo_info SET title=? WHERE id = ?", (title, int(id_value)))
+        con.commit()
+        con.close()
+
+        #   clear inputs
+        id_entry.delete(0, 'end')
+        title_entry.delete(0, 'end')
+
+        #   refresh the all todo List Box
+        all_todo(*todo_params)
+        MessageBox.showinfo("Success","Todo Updated Successfully")
+    except Exception as e:
+        print(e)
+        MessageBox.showinfo("Invalid ID","Enter a valid ID")
+ 
