@@ -32,6 +32,9 @@ If you have both python2 and python3 installed on your local machine then:
 python3 app.py
 ```
 
+###  Project Preview
+![Completed Project](project_preview.png)
+
 ##  Starter Files
 If you care to use the article to code along, you can cd into the starter_files
 and start building your app
